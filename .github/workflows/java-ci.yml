@@ -1,0 +1,40 @@
+name: Java CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Compila ed esegui i test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clona il repository
+      uses: actions/checkout@v3
+
+    - name: Installa JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Scarica JUnit 5
+      run: |
+        mkdir -p lib
+        curl -L https://search.maven.org/remotecontent?filepath=org/junit/platform/junit-platform-console-standalone/1.9.3/junit-platform-console-standalone-1.9.3.jar \
+          -o lib/junit-platform-console-standalone.jar
+
+    - name: Compila i file Java
+      run: |
+        mkdir -p out
+        javac -d out *.java
+
+    - name: Esegui i test JUnit
+      run: |
+        java -jar lib/junit-platform-console-standalone.jar \
+          --classpath out \
+          --select-class UserTest \
+          --select-class InvestmentTest
